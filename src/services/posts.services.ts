@@ -26,13 +26,19 @@ export async function createPost({ content, email, title }: Post) {
 }
 
 export async function getAllPosts() {
-  const posts = await prisma.post.findMany({ include: { author: true } })
+  const posts = await prisma.post.findMany({
+    include: { author: true },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  })
   return posts
 }
 
 export async function deletePost(id: string) {
   const post_deleted = await prisma.post.delete({
     where: { id: parseInt(id) },
+    include: { author: true },
   })
   return post_deleted
 }
@@ -41,6 +47,7 @@ export async function updatePost(id: string, data: Partial<Post>) {
   const post_update = await prisma.post.update({
     where: { id: parseInt(id) },
     data,
+    include: { author: true },
   })
   return post_update
 }

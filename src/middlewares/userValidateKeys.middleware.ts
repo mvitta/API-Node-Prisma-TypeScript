@@ -7,7 +7,7 @@ export default function validateKeys(
 ) {
   const { body } = req
   const bodyKeys = Object.keys(body)
-  const validKeys = ['name', 'email']
+  const validKeys = ['name', 'email', 'bio']
 
   if (!bodyKeys.length) {
     res.json({ message: 'se requieren valores para crear un usuario' })

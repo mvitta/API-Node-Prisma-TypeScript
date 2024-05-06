@@ -1,4 +1,5 @@
 export interface User {
+  bio: string
   name: string
   email: string
   readonly id: number

@@ -11,6 +11,11 @@ import {
 
 const router = express.Router()
 
+/**
+ * you can create middleware to check requests before
+ * they enter the router, as was done with the user router
+ */
+
 router.post('/createpost', findUser, async (req, res) => {
   try {
     const thePost: Post = req.body
@@ -53,7 +58,6 @@ router.patch('/updatepost/:id', async (req, res) => {
     const post_update = await updatePost(id, data)
     res.status(StatusCodes.OK).json({ post_update, message: 'post update' })
   } catch (error) {
-    console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error })
   }
 })

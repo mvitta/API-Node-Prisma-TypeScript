@@ -4,14 +4,18 @@ import {
   deleteUser,
   getAllUsers,
   updateUser,
-  getAllUsersWithPost,
 } from '../services/users.services'
 import validateID from '../middlewares/IDvalidate.middleware'
 import validateKeys from '../middlewares/userValidateKeys.middleware'
-import prisma from '../db/prisma'
 import { StatusCodes } from 'http-status-codes'
+import prisma from '../db/prisma'
 
 const router = express.Router()
+
+/**
+ * The user must have an email and a name
+ * at least, they can create a bio later
+ */
 
 router.post('/create', validateKeys, async (req, res) => {
   try {
@@ -25,17 +29,8 @@ router.post('/create', validateKeys, async (req, res) => {
 
 router.get('/getallusers', async (req, res) => {
   try {
-    const users = await getAllUsers()
-    res.status(StatusCodes.OK).json({ users })
-  } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error })
-  }
-})
-
-router.get('/getalluserswithposts', async (req, res) => {
-  try {
-    const users = await getAllUsersWithPost()
-    res.status(StatusCodes.OK).json({ users })
+    const records = await getAllUsers()
+    res.status(StatusCodes.OK).json({ records })
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error })
   }
@@ -43,12 +38,33 @@ router.get('/getalluserswithposts', async (req, res) => {
 
 router.delete('/delete/:userID', validateID, async (req, res) => {
   try {
-    const { userID } = req.params
+    const {
+      body,
+      params: { userID },
+    } = req
     const id = parseInt(userID)
+
+    const content = Object.keys(body)
+
+    if (content.includes('ids')) {
+      let users_deleted = {}
+      if (Array.isArray(body['ids'])) {
+        users_deleted = await prisma.user.deleteMany({
+          where: {
+            id: {
+              in: body['ids'],
+            },
+          },
+        })
+      }
+      res.json({ users_deleted, message: 'users deleted' })
+      return
+    }
+
     const user_delete = await deleteUser(id)
     res.status(StatusCodes.OK).json({
       user_delete,
-      message: `the user ${user_delete} successfully deleted`,
+      message: `the user ${user_delete.name} successfully deleted`,
     })
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error })

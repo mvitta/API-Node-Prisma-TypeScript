@@ -1,21 +1,23 @@
 import prisma from '../db/prisma'
 import { User } from '../types/types'
 
-export async function createUser(data: User) {
+export async function createUser({ bio, ...res }: User) {
   const user = await prisma.user.create({
-    data,
+    data: { ...res, profile: { create: { bio } } },
+    include: { profile: true },
   })
   return user
 }
 
 export async function getAllUsers() {
-  const users = await prisma.user.findMany()
-  return users
-}
-
-export async function getAllUsersWithPost() {
-  const users = await prisma.user.findMany({ include: { posts: true } })
-  return users
+  const users = await prisma.user.findMany({
+    include: { profile: true, posts: true },
+    orderBy: {
+      id: 'asc',
+    },
+  })
+  const count = await prisma.user.count()
+  return { users, total: count }
 }
 
 export async function deleteUser(id: number) {

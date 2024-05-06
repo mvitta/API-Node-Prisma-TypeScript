@@ -24,7 +24,7 @@ export default function validateID(
     const ch = parseInt(userID[i])
     console.log(ch)
 
-    if (!ch) {
+    if (ch <= -1 && typeof ch === 'number') {
       return res.json({ message: 'el id no es un numero valido' })
     }
   }

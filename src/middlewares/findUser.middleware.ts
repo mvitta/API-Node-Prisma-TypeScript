@@ -7,16 +7,20 @@ export default async function findUser(
   res: Response,
   next: NextFunction
 ) {
-  const { email } = req.body
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) {
-    res
-      .json({
-        message: ReasonPhrases.NOT_FOUND,
-        description: `the user ${email} has not been contacted`,
-      })
-      .status(StatusCodes.NOT_FOUND)
-    return
+  try {
+    const { id } = req.params
+    const user = await prisma.user.findUnique({ where: { id: parseInt(id) } })
+    if (!user) {
+      res
+        .json({
+          message: ReasonPhrases.NOT_FOUND,
+          description: `the user with ID ${id} has not been contacted`,
+        })
+        .status(StatusCodes.NOT_FOUND)
+      return
+    }
+    next()
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error })
   }
-  next()
 }
